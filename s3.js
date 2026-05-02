@@ -1,4 +1,5 @@
 require("dotenv").config();
+
 const { S3Client, PutObjectCommand } = require("@aws-sdk/client-s3");
 
 const s3 = new S3Client({
@@ -9,12 +10,13 @@ const s3 = new S3Client({
   },
 });
 
+// ✅ Async function
 const uploadFile = async (file, fileName) => {
   const params = {
     Bucket: process.env.S3_BUCKET,
     Key: fileName,
     Body: file.buffer,
-    ContentType: file.mimetype,
+    ContentType: file.mimetype
   };
 
   await s3.send(new PutObjectCommand(params));

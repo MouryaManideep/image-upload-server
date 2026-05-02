@@ -29,8 +29,17 @@ jobs:
 
       - name: Start server
         run: |
-          node server.js &
-          sleep 5
+          nohup node server.js > server.log 2>&1 &
+          sleep 10
 
-      - name: Health check
-        run: curl http://localhost:3001
+      - name: Check logs (debug)
+        run: cat server.log
+
+      - name: Health check (retry)
+        run: |
+          for i in {1..5}; do
+            curl http://localhost:3001 && exit 0
+            echo "Retrying..."
+            sleep 3
+          done
+          exit 1
