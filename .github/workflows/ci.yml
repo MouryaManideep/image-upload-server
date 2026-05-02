@@ -10,10 +10,6 @@ jobs:
 
     env:
       PORT: 3001
-      AWS_REGION: ${{ secrets.AWS_REGION }}
-      S3_BUCKET: ${{ secrets.S3_BUCKET }}
-      AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-      AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
 
     steps:
       - name: Checkout code
@@ -29,17 +25,19 @@ jobs:
 
       - name: Start server
         run: |
-          nohup node server.js > server.log 2>&1 &
-          sleep 10
+          node server.js > server.log 2>&1 &
+          sleep 5
 
-      - name: Check logs (debug)
+      - name: Show logs
         run: cat server.log
 
-      - name: Health check (retry)
+      - name: Health check
         run: |
-          for i in {1..5}; do
-            curl http://localhost:3001 && exit 0
-            echo "Retrying..."
-            sleep 3
+          for i in {1..10}; do
+            curl -fsS http://localhost:3001 && exit 0
+            echo "Waiting for server..."
+            sleep 2
           done
+          echo "Server failed"
+          cat server.log
           exit 1
